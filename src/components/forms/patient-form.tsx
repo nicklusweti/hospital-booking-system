@@ -7,6 +7,7 @@ import SubmitButton from "../submit-button";
 import { Form } from "../ui/form";
 import CustomFormField from "./custom-form-field";
 import { useState } from "react";
+import { UserFormValidation } from "@/lib/validation";
 
 export enum FormFieldType {
   INPUT = "input",
@@ -18,26 +19,34 @@ export enum FormFieldType {
   SKELETON = "skeleton",
 }
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters long",
-  }),
-});
-
 const PatientForm = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof UserFormValidation>>({
+    resolver: zodResolver(UserFormValidation),
     defaultValues: {
-      username: "",
+      name: "",
+      email: "",
+      phone: "",
     },
   });
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit({
+    name,
+    email,
+    phone,
+  }: z.infer<typeof UserFormValidation>) {
+    setIsLoading(true);
+    try {
+      const userData = { name, email, phone };
+    } catch (error) {
+      console.log(error);
+    }
   }
   return (
     <Form {...form}>
-      <form className="flex flex-col w-full  space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col w-full  space-y-6"
+      >
         <div className="space-y-4">
           <CustomFormField
             fieldType={FormFieldType.INPUT}
